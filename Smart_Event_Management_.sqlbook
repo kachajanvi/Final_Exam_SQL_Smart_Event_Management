@@ -1,0 +1,543 @@
+-- SQLBook: Code
+CREATE DATABASE smart_event_management;
+-- SQLBook: Code
+USE smart_event_management;
+
+-- SQLBook: Code
+CREATE TABLE Venues (
+    venue_id INT PRIMARY KEY,
+    venue_name VARCHAR(100) NOT NULL,
+    location VARCHAR(100) NOT NULL,
+    capacity INT NOT NULL
+);
+-- SQLBook: Code
+CREATE TABLE Organizers (
+    organizer_id INT PRIMARY KEY,
+    organizer_name VARCHAR(100) NOT NULL,
+    contact_email VARCHAR(100),
+    phone_number VARCHAR(15)
+);
+-- SQLBook: Code
+CREATE TABLE Attendees (
+    attendee_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone_number VARCHAR(15)
+);
+
+-- SQLBook: Code
+CREATE TABLE Events (
+    event_id INT PRIMARY KEY,
+    event_name VARCHAR(150) NOT NULL,
+    event_date DATE NOT NULL,
+    venue_id INT,
+    organizer_id INT,
+    ticket_price DECIMAL(10,2) NOT NULL,
+    total_seats INT NOT NULL,
+    available_seats INT NOT NULL,
+
+    FOREIGN KEY (venue_id)
+        REFERENCES Venues(venue_id),
+
+    FOREIGN KEY (organizer_id)
+        REFERENCES Organizers(organizer_id)
+);
+
+-- SQLBook: Code
+CREATE TABLE Tickets (
+    ticket_id INT PRIMARY KEY,
+    event_id INT NOT NULL,
+    attendee_id INT NOT NULL,
+    booking_date DATE NOT NULL,
+    status ENUM('Confirmed','Cancelled','Pending')
+        DEFAULT 'Pending',
+
+    FOREIGN KEY (event_id)
+        REFERENCES Events(event_id),
+
+    FOREIGN KEY (attendee_id)
+        REFERENCES Attendees(attendee_id),
+
+    UNIQUE (event_id, attendee_id)
+);
+-- SQLBook: Code
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    amount_paid DECIMAL(10,2) NOT NULL,
+    payment_status ENUM('Success','Failed','Pending')
+        DEFAULT 'Pending',
+    payment_date DATETIME,
+
+    FOREIGN KEY (ticket_id)
+        REFERENCES Tickets(ticket_id)
+);
+-- SQLBook: Code
+INSERT INTO Venues
+(venue_id, venue_name, location, capacity)
+VALUES
+(1, 'City Convention Hall', 'Surat', 500),
+(2, 'Riverfront Arena', 'Ahmedabad', 800),
+(3, 'Grand Palace', 'Vadodara', 600),
+(4, 'Sunrise Auditorium', 'Surat', 300);
+-- SQLBook: Code
+INSERT INTO Organizers
+(organizer_id, organizer_name, contact_email, phone_number)
+VALUES
+(1, 'EventPro India', 'eventpro@gmail.com', '9876543210'),
+(2, 'Smart Events', 'smartevents@gmail.com', '9876543211'),
+(3, 'Creative Minds', 'creative@gmail.com', '9876543212'),
+(4, 'Youth Festival Team', 'youthfest@gmail.com', '9876543213');
+-- SQLBook: Code
+INSERT INTO Attendees
+(attendee_id, name, email, phone_number)
+VALUES
+(1, 'Janvi Kacha', 'janvi@gmail.com', '9000000001'),
+(2, 'Rahul Patel', 'rahul@gmail.com', '9000000002'),
+(3, 'Priya Shah', 'priya@gmail.com', '9000000003'),
+(4, 'Krisha Mehta', NULL, '9000000004'),
+(5, 'Aarav Desai', 'aarav@gmail.com', '9000000005'),
+(6, 'Neha Patel', 'neha@gmail.com', '9000000006'),
+(7, 'Riya Joshi', 'riya@gmail.com', '9000000007'),
+(8, 'Karan Shah', 'karan@gmail.com', '9000000008');
+-- SQLBook: Code
+INSERT INTO Events
+(event_id, event_name, event_date, venue_id,
+ organizer_id, ticket_price, total_seats, available_seats)
+VALUES
+(1, 'Tech Innovation Summit', '2026-12-05', 1, 1, 1500.00, 500, 480),
+(2, 'Music Festival', '2026-12-10', 2, 2, 2500.00, 800, 760),
+(3, 'Business Conference', '2026-12-15', 3, 1, 2000.00, 600, 570),
+(4, 'Cultural Night', '2026-12-20', 4, 3, 1000.00, 300, 270),
+(5, 'AI & Data Science Workshop', '2026-12-25', 1, 4, 1800.00, 500, 490),
+(6, 'Startup Meetup', '2026-12-28', 2, 2, 1200.00, 800, 790);
+
+-- SQLBook: Code
+INSERT INTO Tickets
+(ticket_id, event_id, attendee_id, booking_date, status)
+VALUES
+(1, 1, 1, '2026-09-25', 'Confirmed'),
+(2, 1, 2, '2026-09-26', 'Confirmed'),
+(3, 2, 3, '2026-09-27', 'Confirmed'),
+(4, 2, 4, '2026-09-28', 'Pending'),
+(5, 3, 5, '2026-09-29', 'Confirmed'),
+(6, 3, 6, '2026-09-30', 'Cancelled'),
+(7, 4, 7, '2026-09-30', 'Confirmed'),
+(8, 5, 8, '2026-09-30', 'Pending'),
+(9, 5, 1, '2026-09-30', 'Confirmed'),
+(10, 6, 2, '2026-09-30', 'Confirmed');
+-- SQLBook: Code
+INSERT INTO Payments
+(payment_id, ticket_id, amount_paid, payment_status, payment_date)
+VALUES
+(1, 1, 1500.00, 'Success', '2026-09-25 10:30:00'),
+(2, 2, 1500.00, 'Success', '2026-09-26 11:15:00'),
+(3, 3, 2500.00, 'Success', '2026-09-27 12:00:00'),
+(4, 4, 2500.00, 'Pending', '2026-09-28 13:30:00'),
+(5, 5, 2000.00, 'Success', '2026-09-29 09:45:00'),
+(6, 6, 2000.00, 'Failed', '2026-09-30 14:00:00'),
+(7, 7, 1000.00, 'Success', '2026-09-30 15:20:00'),
+(8, 8, 1800.00, 'Pending', '2026-09-30 16:10:00'),
+(9, 9, 1800.00, 'Success', '2026-09-30 17:00:00'),
+(10, 10, 1200.00, 'Success', '2026-09-30 18:00:00');
+-- SQLBook: Code
+INSERT INTO Attendees
+VALUES
+(9, 'Test User', 'test@gmail.com', '9000000009');
+-- SQLBook: Code
+SELECT * FROM Attendees;
+-- SQLBook: Code
+UPDATE Attendees
+SET phone_number = '9111111111'
+WHERE attendee_id = 9;
+
+-- SQLBook: Code
+DELETE FROM Attendees
+WHERE attendee_id = 9;
+-- SQLBook: Code
+SELECT *
+FROM Events
+WHERE event_name LIKE '%AI%';
+-- SQLBook: Code
+SELECT
+    e.event_id,
+    e.event_name,
+    e.event_date,
+    v.location
+FROM Events e
+JOIN Venues v
+ON e.venue_id = v.venue_id
+WHERE v.location = 'Surat'
+AND e.event_date > CURRENT_DATE;
+-- SQLBook: Code
+SELECT
+    e.event_id,
+    e.event_name,
+    COALESCE(SUM(
+        CASE
+            WHEN p.payment_status = 'Success'
+            THEN p.amount_paid
+            ELSE 0
+        END
+    ), 0) AS total_revenue
+FROM Events e
+LEFT JOIN Tickets t
+ON e.event_id = t.event_id
+LEFT JOIN Payments p
+ON t.ticket_id = p.ticket_id
+GROUP BY e.event_id, e.event_name
+ORDER BY total_revenue DESC
+LIMIT 5;
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    COUNT(t.ticket_id) AS confirmed_tickets
+FROM Events e
+JOIN Tickets t
+ON e.event_id = t.event_id
+WHERE t.status = 'Confirmed'
+GROUP BY e.event_id, e.event_name
+HAVING COUNT(t.ticket_id) > 1;
+-- SQLBook: Code
+SELECT *
+FROM Events
+WHERE MONTH(event_date) = 12
+AND available_seats > total_seats * 0.50;
+-- SQLBook: Code
+SELECT DISTINCT
+    a.attendee_id,
+    a.name
+FROM Attendees a
+JOIN Tickets t
+ON a.attendee_id = t.attendee_id
+LEFT JOIN Payments p
+ON t.ticket_id = p.ticket_id
+WHERE t.status = 'Confirmed'
+OR p.payment_status = 'Pending';
+-- SQLBook: Code
+SELECT DISTINCT
+    a.attendee_id,
+    a.name
+FROM Attendees a
+JOIN Tickets t
+ON a.attendee_id = t.attendee_id
+WHERE NOT t.status = 'Confirmed';
+-- SQLBook: Code
+SELECT * FROM Events
+ORDER BY event_date ASC;
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    COUNT(t.attendee_id) AS total_attendees
+FROM Events e
+LEFT JOIN Tickets t
+ON e.event_id = t.event_id
+GROUP BY e.event_id, e.event_name;
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    COALESCE(SUM(
+        CASE
+            WHEN p.payment_status = 'Success'
+            THEN p.amount_paid
+            ELSE 0
+        END
+    ), 0) AS total_revenue
+FROM Events e
+LEFT JOIN Tickets t
+ON e.event_id = t.event_id
+LEFT JOIN Payments p
+ON t.ticket_id = p.ticket_id
+GROUP BY e.event_id, e.event_name;
+-- SQLBook: Code
+SELECT
+    SUM(amount_paid) AS total_revenue
+FROM Payments
+WHERE payment_status = 'Success';
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    COUNT(t.ticket_id) AS total_attendees
+FROM Events e
+JOIN Tickets t
+ON e.event_id = t.event_id
+WHERE t.status = 'Confirmed'
+GROUP BY e.event_id, e.event_name
+ORDER BY total_attendees DESC
+LIMIT 1;
+
+-- SQLBook: Code
+SELECT
+    AVG(ticket_price) AS average_ticket_price
+FROM Events;
+-- SQLBook: Code
+SELECT
+    MAX(ticket_price) AS maximum_ticket_price
+FROM Events;
+-- SQLBook: Code
+SELECT
+    MIN(ticket_price) AS minimum_ticket_price
+FROM Events;
+
+-- SQLBook: Code
+SELECT
+    COUNT(*) AS total_attendees
+FROM Attendees;
+-- SQLBook: Code
+SELECT
+    TABLE_NAME,
+    CONSTRAINT_NAME,
+    COLUMN_NAME,
+    REFERENCED_TABLE_NAME,
+    REFERENCED_COLUMN_NAME
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = 'smart_event_management'
+AND REFERENCED_TABLE_NAME IS NOT NULL;
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    v.venue_name,
+    v.location
+FROM Events e
+INNER JOIN Venues v
+ON e.venue_id = v.venue_id;
+-- SQLBook: Code
+SELECT
+    a.name,
+    t.ticket_id,
+    p.payment_status
+FROM Attendees a
+LEFT JOIN Tickets t
+ON a.attendee_id = t.attendee_id
+LEFT JOIN Payments p
+ON t.ticket_id = p.ticket_id
+WHERE p.payment_status IS NULL
+OR p.payment_status <> 'Success';
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    t.ticket_id
+FROM Tickets t
+RIGHT JOIN Events e
+ON t.event_id = e.event_id;
+
+-- SQLBook: Code
+SELECT
+    e.event_name,
+    t.ticket_id
+FROM Events e
+LEFT JOIN Tickets t
+ON e.event_id = t.event_id
+
+UNION
+
+SELECT
+    e.event_name,
+    t.ticket_id
+FROM Events e
+RIGHT JOIN Tickets t
+ON e.event_id = t.event_id;
+-- SQLBook: Code
+SELECT
+    e.event_id,
+    e.event_name
+FROM Events e
+JOIN Tickets t
+ON e.event_id = t.event_id
+JOIN Payments p
+ON t.ticket_id = p.ticket_id
+WHERE p.payment_status = 'Success'
+GROUP BY e.event_id, e.event_name
+HAVING SUM(p.amount_paid) >
+(
+    SELECT AVG(event_revenue)
+    FROM
+    (
+        SELECT
+            SUM(p2.amount_paid) AS event_revenue
+        FROM Tickets t2
+        JOIN Payments p2
+        ON t2.ticket_id = p2.ticket_id
+        WHERE p2.payment_status = 'Success'
+        GROUP BY t2.event_id
+    ) AS revenue_table
+);
+
+-- SQLBook: Code
+SELECT
+    a.attendee_id,
+    a.name
+FROM Attendees a
+JOIN Tickets t
+ON a.attendee_id = t.attendee_id
+GROUP BY a.attendee_id, a.name
+HAVING COUNT(DISTINCT t.event_id) > 1;
+-- SQLBook: Code
+SELECT
+    o.organizer_id,
+    o.organizer_name,
+    COUNT(e.event_id) AS total_events
+FROM Organizers o
+JOIN Events e
+ON o.organizer_id = e.organizer_id
+GROUP BY o.organizer_id, o.organizer_name
+HAVING COUNT(e.event_id) > 3;
+-- SQLBook: Code
+SELECT
+    event_name,
+    event_date,
+    MONTH(event_date) AS event_month
+FROM Events;
+
+-- SQLBook: Code
+SELECT
+    event_name,
+    event_date,
+    DATEDIFF(event_date, CURRENT_DATE) AS days_remaining
+FROM Events
+WHERE event_date >= CURRENT_DATE;
+-- SQLBook: Code
+SELECT
+    payment_id,
+    DATE_FORMAT(
+        payment_date,
+        '%Y-%m-%d %H:%i:%s'
+    ) AS formatted_payment_date
+FROM Payments;
+
+-- SQLBook: Code
+SELECT
+    organizer_id,
+    UPPER(organizer_name) AS organizer_name
+FROM Organizers;
+-- SQLBook: Code
+SELECT
+    attendee_id,
+    TRIM(name) AS cleaned_name
+FROM Attendees;
+-- SQLBook: Code
+SELECT
+    attendee_id,
+    name,
+    COALESCE(email, 'Not Provided') AS email
+FROM Attendees;
+
+-- SQLBook: Code
+SELECT
+    e.event_name,
+
+    COALESCE(
+        SUM(
+            CASE
+                WHEN p.payment_status = 'Success'
+                THEN p.amount_paid
+                ELSE 0
+            END
+        ),
+        0
+    ) AS total_revenue,
+
+    RANK() OVER (
+        ORDER BY
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN p.payment_status = 'Success'
+                    THEN p.amount_paid
+                    ELSE 0
+                END
+            ),
+            0
+        ) DESC
+    ) AS revenue_rank
+
+FROM Events e
+
+LEFT JOIN Tickets t
+ON e.event_id = t.event_id
+
+LEFT JOIN Payments p
+ON t.ticket_id = p.ticket_id
+
+GROUP BY e.event_id, e.event_name;
+-- SQLBook: Code
+SELECT
+    payment_id,
+    payment_date,
+    amount_paid,
+
+    SUM(amount_paid) OVER (
+        ORDER BY payment_date
+    ) AS cumulative_sales
+
+FROM Payments
+WHERE payment_status = 'Success';
+
+
+-- Running total of attendees per event
+SELECT
+    e.event_name,
+    t.ticket_id,
+    t.attendee_id,
+
+    COUNT(*) OVER (
+        PARTITION BY e.event_id
+        ORDER BY t.ticket_id
+    ) AS running_attendees
+
+FROM Events e
+
+JOIN Tickets t
+ON e.event_id = t.event_id
+
+WHERE t.status = 'Confirmed';
+-- SQLBook: Code
+SELECT
+    event_name,
+    total_seats,
+    available_seats,
+
+    CASE
+        WHEN available_seats < total_seats * 0.20
+            THEN 'High Demand'
+
+        WHEN available_seats BETWEEN
+             total_seats * 0.20
+             AND total_seats * 0.50
+            THEN 'Moderate Demand'
+
+        ELSE 'Low Demand'
+    END AS demand_category
+
+FROM Events;
+-- SQLBook: Code
+SELECT
+    payment_id,
+    payment_status,
+
+    CASE
+        WHEN payment_status = 'Success'
+            THEN 'Successful'
+
+        WHEN payment_status = 'Failed'
+            THEN 'Failed'
+
+        ELSE 'Pending'
+    END AS payment_category
+
+FROM Payments;
+-- SQLBook: Code
+SELECT * FROM Venues;
+
+-- SQLBook: Code
+SELECT * FROM Organizers;
+-- SQLBook: Code
+SELECT * FROM Attendees;
+-- SQLBook: Code
+SELECT * FROM Events;
+
+-- SQLBook: Code
+SELECT * FROM Tickets;
+
+-- SQLBook: Code
+SELECT * FROM Payments;
